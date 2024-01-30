@@ -1,0 +1,15 @@
+\section{Podsumowanie}
+\label{sec:Summary}
+Problem segmentacji lezji stwardnienia rozsianego jest zadaniem trudnym. Klasy lezji oraz tła są silnie niezbalansowane, ponadto często lekarze na różny sposób oznaczają lezje, przez co nauczenie sieci neuronowej odwzorowania oznaczeń lezji natrafia na liczne przeszkody. Nie mniej, udało się otrzymać sieci neuronowe, które odznaczają się dobrą umiejętnością segmentacji lezji MS. Okazuje się również, że pełne zbalansowanie danych,w przypadku funkcji kosztu BCE, negatywnie wpływa na zdolność sieci trafnego segmentowania lezji, co autor tłumaczy niewielką różnicą strukturalną lezji oraz innych struktur mózgu, zbalansowanie nie rozróżnia pomiędzy trudnymi a łatwymi przypadkami klasyfikacji. Bardzo dobrymi wynikami segmentacji lezji odznaczyła się sieć FL-2, w której podczas procesu uczenia, użyto funkcji kosztu Focal. Sieć ta szybciej niż pozostałe odznaczała się dobrymi metrykami ewaluacyjnymi. Jednakże szybko sieć zatrzymała się w minimum lokalnym. Uznaje się, że założony cel pracy, wyznaczony w rozdziale \ref{sec:PurposeAndScope} został osiągnięty. 
+\par
+Sieć w procesie uczenia wykorzystywała jedynie kontekst poprzeczny obrazu skanu mózgu, gdyż lezje segmentowane były na przekrojach dwuwymiarowych. Okazuje się, że kontekst ten jest wystarczająco dobry do uzyskania przyzwoitych wyników, przy wykorzystaniu odpowiednich parametrów uczenia.
+
+\subsection{Proponowane rozwinięcia}
+\label{sec:extensions}
+\par
+Rozwinięciem sieci mogłoby być wykorzystanie trójwymiarowych obrazów mózgu, dostosowując model sieci do ich przyjmowania. Potencjalną zaletą byłoby wykorzystanie kontekstu osi strzałkowej i podłużnej w uczeniu sieci, obecnie lezje danego przekroju są niezależne od lezji oznaczanych na sąsiednich przekrojach poprzecznych.
+\par
+Kolejnym rozwinięciem tematu pracy mogłoby być dogłębne zbadanie wpływu ważenia funkcji kosztu na jakość segmentacji w problemie diagnostyki stwardnienia rozsianego. Balans danych ma duży wpływ na jakość wyników, jednak pełne zbalansowanie funkcji kosztu BCE okazało się niekorzystne w problemie segmentacji lezji MS.
+\par
+Kolejnym rozwinięciem mogłoby być powiązanie segmentowanych lezji na obrazach pobieranych podczas corocznych, rutynowych skanów MRI pacjentów z MS, z konkretnym profilem MS. Ze względu na to, że profil choroby ma duże znaczenie w leczeniu pacjenta,wczesne zdiagnozowanie konkretnego profilu byłoby bardzo korzystne dla dziedziny diagnostyki medycznej w kontekście MS.
+

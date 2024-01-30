@@ -1,0 +1,27 @@
+\section{Sytuacja rynkowa i przegląd rozwiązań}
+\label{sec:MarketAndSolutionsOverview}
+
+\subsection{Prace dot. segmentacji lezji Stwardnienia Rozsianego}
+
+\par
+Powstał szereg prac dotyczący segmentacji lezji z wykorzystaniem sieci neuronowych. Prace te różnią się wykorzystanymi modelami oraz technikami mającymi na celu odpowiedzenie na szczególną specyfikę problemu segmentacji lezji na obrazach MRI. W tym stosuje się metody do zmniejszenia wpływu niezbalansowanych danych oraz wykorzystujące techniki zmniejszające zależność procesu uczącego od ilości danych. Ewaluacje technik przedstawionych w poniższych pracach są umiarkowanie dobre. Współczynnik Dice'a wynosi w nich od 0.4864 do 0.6430, natomiast czułość od 0.3034 do 0.4871\cite{Sadeghibakhi2022-ox} (patrz rozdz. \ref{sec:evaluation}). Przedstawienie metod znajduje się poniżej.
+
+\begin{itemize}
+
+    \item[$\blacksquare$]  \textbf{Asmsl}\cite{10.1007/978-3-319-75238-9_3} Wykorzystuje się wielowymiarowe jednostki rekurencyjne z bramkowaniem (GRU) \en{gated recurrent unit} w celu segmentacji lezji MS\cite{Sadeghibakhi2022-ox}. Jest to mechanizm oparty na rekurencyjnych sieciach neuronowych, przedstawiony w 2013 roku\cite{cho2014learning}. Pracę charakteryzują dość dobre wyniki techniki, z kryterium Sørensen'a-Dice'a wynoszącym 0.6298.
+
+    \item[$\blacksquare$] \textbf{ACU-NET}\cite{hu2020} Jest to rozwiązanie wykorzystujące modyfikację modelu U-Net, zakładającej trójwymiarowe dane wejściowe oraz wprowadzającą blok atencji kontekstowej \en{attention context U-Net} (ACU) w procesie uczenia. 
+
+    \item[$\blacksquare$] \textbf{IMAGINE}\cite{Hashemi2019} Jest to rozwiązanie służące segmentacji lezji MS wykorzystujące zmodyfikowany do obsługi trójwymiarowych danych model U-Net wykorzystujący metrykę $F_\beta$ oraz Focal jako funkcje kosztu.    
+
+    \item [$\blacksquare$] \textbf{Cascaded CNN}\cite{valverde2017improving} Rozwiązanie oparte jest na wykorzystaniu dwóch siedmiowarstwowych sieci do segmentacji lezji  Jest to autorska sieć neuronowa, łatwa w wyuczeniu na małym zbiorze danych, co potencjalnie mogłoby rozwiązać problem trudno dostępnych danych w postaci oznaczeń lezji przez analityków.
+
+    \item [$\blacksquare$] \textbf{DED CNN}\cite{10.1007/978-3-030-11723-8_13} Jest to narzędzie do segmentacji lezji na obrazie 2D stworzone z wykorzystaniem głębokiej sieci neuronowej.
+
+    \item [$\blacksquare$] \textbf{AB CNN}\cite{Sadeghibakhi2022-ox} Rozwiązanie służy do segmentacji lezji stwardnienia rozsianego. Jest to rozwinięcie sieci 3D-ResNet, wykorzystujące mechanizm atencji.
+
+    
+    
+\end{itemize}
+
+\par 

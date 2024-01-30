@@ -1,0 +1,206 @@
+\tikzstyle{class} = [rectangle, draw, text width=8em, text centered, minimum height=4em, font=\ttfamily]
+\tikzstyle{line} = [draw, -latex']
+
+\section{Realizacja}
+\label{sec:Execution}
+\subsection{Przygotowanie zbioru danych}
+\label{sec:preparing-of-dataset}
+Do realizacji zadania uznano za konieczne konwersję plików Nifti z rozszerzeniem .nii do plików z rozszerzeniem .npy przechowujących tablice NumPy. Zrobiono tak, ponieważ konwersja do tablic NumPy jest przeprowadzana wielokrotnie podczas procesu uczenia się. Konwersja ta, przy wykorzystaniu biblioteki nibabel, jeśli by wykonywać ją w każdej eposze uczenia, w wymierny sposób spowalniałaby cały proces. Wczytywanie tablic bezpośrednio z plików .npy natomiast usprawnia go. Tablice NumPy są przekrojami poprzecznymi skanów mózgu. Otrzymano w ten sposób 23 281 przekrojów. 
+\par 
+Wczytywane pliki Nifti początkowo zostają wczytane do klasy \texttt{Nifti}, reprezentującej obraz MRI oraz ewentualnie odpowiadającą mu maskę z oznaczonymi lezjami. Klasa implementuje metodę która w inteligentny sposób przycina obrazy, na podstawie wyznaczonego środka ciężkości na obrazie skanu mózgu. W ten sposób wszystkie obrazy są przestrzennie unormowane.
+
+% \begin{code}
+% \begin{minted}[breaklines, linenos]{python}
+%     def __intelligent_crop(self):
+%         if self.__masks is None:
+%             raise Exception("Annotations is {}".format(None))
+%         center_of_mass = np.round(ndimage.center_of_mass(np.ceil(self.__images))).astype(int)
+%         # Half-length of a maximum possible rectangle side, making center of mass in the center of image.
+%         # Take into consideration, that center of mass is the center of gravity for whole 3D image, not just a slice.
+%         a = int(min([center_of_mass[1], center_of_mass[2], self.__images.shape[1] - center_of_mass[1], self.__images.shape[2] - center_of_mass[2]]))
+%         self.__images = self.__images[:, center_of_mass[1] - a: center_of_mass[1] + a, center_of_mass[2] - a:center_of_mass[2] + a]
+%         self.__masks = self.__masks[:, center_of_mass[1] - a: center_of_mass[1] + a, center_of_mass[2] - a:center_of_mass[2] + a]
+% \end{minted}
+% \captionof{listing}{Wyśrodkowanie obrazu}
+% \label{lis:centering-image}
+% \end{code}
+
+
+\subsection{Klasa zbioru danych}
+\label{sec:dataset-class}
+\par
+Celem dostosowania danych do wymagań biblioteki PyTorch niezbędne było stworzenie klasy reprezentującej zbiór danych, pochodnej generycznej klasy \texttt{Dataset} biblioteki. Zdecydowano się na implementację klasy zbioru w stylu mapy, definiowanej przez PyTorch jako definiującą metody \texttt{\_\_len\_\_} oraz \texttt{\_\_item\_\_}. Metody te zwracają ilość elementów w zbiorze danych oraz przekrój mózgu wraz z maską lezji odpowiednio. Klasa implementuje szereg środków zapobiegawczych, mających przeciwdziałać potencjalnej niezgodności danych. 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance = 0cm, auto,
+        class/.style={rectangle, draw, text centered, anchor=north, text width=6em, font=\ttfamily},
+        line/.style={draw, -latex'},
+        method/.style={font=\ttfamily}
+    ]
+        % Class node
+        \node[class] (dataset) {MSDataset};
+        % Private members
+        \node[left=1cm of dataset, yshift=0cm] (variables) {\textbf{Zmienne}};
+        \node[below=0cm of variables, method] (current_image_num) {current\_image\_num: int};
+        \node[below=0cm of current_image_num, method] (image_dir) {image\_dir: str};
+        \node[below=0cm of image_dir, method] (mask_dir) {mask\_dir: str};
+        \node[below=0cm of mask_dir, method] (transform) {transform: Callable};
+        \node[below=0cm of transform, method] (target_transform) {target\_transform: Callable};
+        \node[below=0cm of target_transform, method] (image_labels) {image\_labels: List[str]};
+        \node[below=0cm of image_labels, method] (current_image) {current\_image: Tuple[None, None]};
+        % Public methods
+        \node[below=-0.3cm of dataset, xshift=4cm] (methods) {\textbf{Metody}};
+        \node[below=0cm of methods, method] (init) {\_\_init\_\_(image\_dir, mask\_dir, transform, target\_transform)};
+        \node[below=0cm of init, method] (getitem) {\_\_getitem\_\_(index) $\rightarrow$ Tuple[torch.Tensor, torch.Tensor]};
+        \node[below=0cm of getitem, method] (len) {\_\_len\_\_() $\rightarrow$ int};
+        % Connections
+        \path[line] (dataset) -- (variables);
+        \path[line] (dataset) -- (methods);
+
+    \end{tikzpicture}
+    \caption{Diagram klasy \texttt{MSDataset}}
+    \label{fig:msdataset}
+\end{figure}
+
+
+
+
+\subsection{Klasa modelu}
+\label{sec:model-class}
+
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance = 0.5cm, auto,
+        class/.style={rectangle, draw, text centered, anchor=north, font=\ttfamily},
+        line/.style={draw, -latex'},
+        method/.style={rectangle, font=\ttfamily}
+    ]
+        % Class node
+        \node[class] (unet) {UNet};
+        % Private members
+        \node[below=2cm of unet] (variables) {\textbf{Zmienne}};
+        \node[below=0cm of variables, method] (ups) {ups: nn.ModuleList()};
+        \node[below=0cm of ups, method] (downs) {downs: nn.ModuleList()};
+        \node[below=0cm of downs, method] (up_convs) {up\_convs: nn.ModuleList()};
+        % Public methods
+        \node[right=4cm of unet] (methods) {\textbf{Metody}};
+        \node[below=0cm of methods, method] (init) {\_\_init\_\_(};
+
+        \node[below=0cm of init, method] (initial_in_channels) {initial\_in\_channels};
+        \node[below=0cm of initial_in_channels, method] (initial_out_channels) {initial\_out\_channels=1};
+        \node[below=0cm of initial_out_channels, method] (features) {features};
+        \node[below=0cm of features, method] (conv_kernel_size) {conv\_kernel\_size=3};
+        \node[below=0cm of conv_kernel_size, method] (conv_stride) {conv\_stride};
+        \node[below=0cm of conv_stride, method] (up_conv_kernel_size) {up\_conv\_kernel\_size};
+        \node[below=0cm of up_conv_kernel_size, method] (up_conv_stride) {up\_conv\_stride};
+        \node[below=0cm of up_conv_stride, method] (max_pool_kernel_size) {max\_pool\_kernel\_size};
+        \node[below=0cm of max_pool_kernel_size, method] (max_pool_stride) {max\_pool\_stride};
+        \node[below=0cm of max_pool_stride, method] (end_conv_kernel_size) {end\_conv\_kernel\_size};
+        \node[below=0cm of end_conv_kernel_size, method] (end_conv_stride) {end\_conv\_stride)};
+        
+        \node[below=0cm of end_conv_stride, method] (forward) {forward(x)};
+        % Connections
+         \path[line] (unet) -- (methods);
+         \path[line] (unet) -- (variables);
+    \end{tikzpicture}
+    \caption{Diagram klasy \texttt{UNet}}
+    \label{fig:unet}
+\end{figure}
+
+Klasa \texttt{nn.Module}  biblioteki PyTorch reprezentuje moduł sieci neuronowej, to jest element który wykonuje pewne obliczenia. Wynik tych obliczeń zwracany jest przy wykorzystaniu metody \texttt{forward}, która to metoda powinna być nadpisana w implementowanym module.  Każdy moduł \texttt{nn.Module} może zawierać inne moduły, w ten sposób tworząc strukturę drzewiastą. W implementacji sieci będącej tematem  tej pracy, w klasie \texttt{UNet}, będącej  modułem \texttt{nn.Module}, stworzono kontener \texttt{nn.Sequential} przechowującym submoduły w sposób sekwencyjny, Kontenery te przyjmują na  wejście dowolne wartości i przekazują je na wejście pierwszego submodułu, w którym następnie obliczane jest wyjście wspomnianą funkcją \texttt{forward} i podawane na wejście kolejnego submodułu. Taka operacja jest powtarzana aż to otrzymania wyjścia z ostatniego submodułu, będącego wyjściem modułu \texttt{nn.Sequential}. W przypadku implementowanej sieci submodułami są między innymi moduły implementujące podwójną konwolucję (przechowującą w istocie element \texttt{nn.Sequential} łączący dwie konwolucje) oraz operacje warstwy redukującej. Schemat klasy przedstawiono na rys. \ref{fig:unet}.
+
+\addImage{fig:unet-class-idea}{src/img/Execution/unet-class.png}{Schemat ideowy działania metody \texttt{forward} klasy \texttt{UNet}}
+
+\par
+Pierwszy blok reprezentuje ścieżkę kurczącą, trzeci natomiast reprezentuje ścieżką rozszerzającą. Środkowy blok zawiera elementy ścieżek kurczącej i rozszerzającej i dodany został z powodów praktycznych.
+\subsection{Metody uczące}
+\par
+Zaimplementowano funkcję \texttt{fit} wzorowaną na metodzie \texttt{model.fit()} biblioteki TensorFlow, będącą metodą włączoną do klasy  modelu, ucząc model zadaną ilość epok. Funkcja przygotowana w ramach realizacji zadania jednak nie jest częścią  klasy modelu oraz przyjmuje dodatkowe dane. Wśród nich wyróżnić można uczony model, optymalizatior, funkcję kosztu, skaler. Nie implementowano funkcji jako elementu modelu, trzymając się sensownego w opinii autora ideowego podziału jaki występuje w bibliotece PyTorch, która nie zawiera w modelu  parametrów uczenia.
+
+
+
+\par Metoda \texttt{fit} automatycznie wybiera GPU jako jednostkę obliczeniową używaną w procesie uczenia. Tworzy obiekty klasy  \texttt{DataLoader} biblioteki PyTorch obsługującą podawane obrazy i maski lezji do procesu uczenia. Podając do funkcji w argumencie wytrenowany w części model, dano możliwość wznowienia procesu uczenia. Funkcja następnie przeprowadza proces uczenia zadaną w parametrze \texttt{epochs} liczbę razy. Pobierając dane  z obiektów \texttt{DataLoader}, dla każdej serii danych przeprowadza propagację oraz propagację wsteczną wykorzystując obliczone wartości funkcji kosztu. Proces uczenia jest monitorowany przez pasek postępu \texttt{tqdm}. Po przeprowadzeniu każdej sesji uczenia, czyli pod koniec każdej epoki, funkcja \texttt{fit} ewaluuje metryki. Wykorzystuje do tego elementy stworzonej klasy \texttt{MetricsHandler}. Co zadaną w parametrach  wejściowych liczbę epok, funkcja zapisuje stan modelu.
+
+
+
+
+\subsection{Metody ewaluacyjne}
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[node distance = 0cm, auto,
+		method/.style={font=\ttfamily}]
+		% Class node
+		\node[class] (metrics) {Metrics};
+		% Private members
+		\node[above=2.2cm of metrics, xshift=-4.5cm] (private_members) {\textbf{Prywatne zmienne:}};
+		\node[below=0cm of private_members, method] (ppv) {\_\_E\_ppv: float};
+		\node[below=0cm of ppv, method] (acc) {\_\_E\_acc: float};
+		\node[below=0cm of acc, method] (bacc) {\_\_E\_bacc: float};
+		\node[below=0cm of bacc, method] (tpr) {\_\_E\_tpr: float};
+		\node[below=0cm of tpr, method] (tnr) {\_\_E\_tnr: float};
+		\node[below=0cm of tnr, method] (f05) {\_\_E\_f05: float};
+		\node[below=0cm of f05, method] (f1) {\_\_E\_f1: float};
+		\node[below=0cm of f1, method] (f2) {\_\_E\_f2: float};
+		\node[below=0cm of f2, method] (k) {\_\_E\_k: float};
+		\node[below=0cm of k, method] (mcc) {\_\_E\_mcc: float};
+		\node[below=0cm of mcc, method] (jacc) {\_\_E\_jacc: float};
+		\node[below=0cm of jacc, method] (counter) {\_\_counter: int};
+		% Public methods
+		\node[above=3.5cm of metrics, xshift=4.5cm] (public_methods) {\textbf{Metody Publiczne:}};
+		\node[below=0cm of public_methods, method] (update) {+ update(confusion\_matrix)};
+		\node[below=0cm of update, method] (get_counter) {+ get\_counter() $\rightarrow$ int};
+		\node[below=0cm of get_counter, method] (ppv_property) {+ ppv() $\rightarrow$ float};
+		\node[below=0cm of ppv_property, method] (acc_property) {+ acc() $\rightarrow$ float};
+		\node[below=0cm of acc_property, method] (bacc_property) {+ bacc() $\rightarrow$ float};
+		\node[below=0cm of bacc_property, method] (tpr_property) {+ tpr() $\rightarrow$ float};
+		\node[below=0cm of tpr_property, method] (tnr_property) {+ tnr() $\rightarrow$ float};
+		\node[below=0cm of tnr_property, method] (f1_property) {+ f1() $\rightarrow$ float};
+		\node[below=0cm of f1_property, method] (f05_property) {+ f05() $\rightarrow$ float};
+		\node[below=0cm of f05_property, method] (f2_property) {+ f2() $\rightarrow$ float};
+		\node[below=0cm of f2_property, method] (k_property) {+ k() $\rightarrow$ float};
+		\node[below=0cm of k_property, method] (mcc_property) {+ mcc() $\rightarrow$ float};
+		\node[below=0cm of mcc_property, method] (jacc_property) {+ jacc() $\rightarrow$ float};
+		% Connections
+		\path[line] (metrics) -- (tnr);
+		\path[line] (metrics) -- (tnr_property);
+		
+	\end{tikzpicture}
+	\caption{Diagram klasy \texttt{Metrics}}
+	\label{fig:metrics}
+\end{figure}
+W celu przeprowadzenia ewaluacji modelu stworzono klasy \texttt{Metrics} oraz \texttt{MetricsHandler}. Pierwsza przechowuje przechowuje większość metryk opisanych w rozdz. \ref{sec:confusion-matrix-and-metrics}. Przy wykorzystaniu metody \texttt{update} uaktualnia metryki o nowe dane. Zorganizowano to w podany sposób, gdyż dane podawane są przez \texttt{DataLoader} w seriach i metryki oblicza się dla nich. Klasa \texttt{MetricsHandler} służy do obsługi obliczeń metryk. Do metody inicjacyjnej klasy podawany jest obiekt \texttt{DataLoader}, obsługujący dane ewaluacyjne, obiekt \texttt{nn.Module} przechowujący model, listę \texttt{list} przechowującą wartości progów definiujących przydział do klas końcowych wyjścia modelu, oraz obiekt \texttt{torch.device} określający urządzenie na którym operacje obliczeniowe mają być wykonane. Klasa zawiera metodę \texttt{evaluate}, która zwraca słownik \texttt{dict} z metrykami przyporządkowanymi do konkretnych wartości progów, oraz obliczoną metrykę auroc, jako niezależną od doboru progów. Klasa zawiera również metodę \texttt{append\_metrics} przyjmującą na wejście dwa obiekty \texttt{dict}, która łączy metryki z dwóch słowników i zwraca w postaci jednego słownika \texttt{dict}. Metryki w połączonym słowniku, odpowiadające konkretnym progom (kluczom słownika) są uporządkowane w listę. Metodę tę, używa się obliczając metryki w każdej eposze, w ten sposób otrzymując obiekty \texttt{list} przechowujące metryki dla wielu epoch. Klasa \texttt{MetricsHandler} ponadto posiada wbudowaną metodę do zapisu metryk w formacie .json na dysku.  
+
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance = 2.5cm, auto,
+                method/.style={font=\ttfamily}]
+        % Nodes
+        \node[class] (handler) {MetricsHandler};
+        % Private members
+        \node[above left=1.5cm of handler] (private) {\textbf{Zmienne prywatne:}};
+        \node[below=0.2cm of private, method] (loader) {\_\_loader: DataLoader};
+        \node[below=0.2cm of loader, method] (device) {\_\_device: torch.device};
+        \node[below=0.2cm of device, method] (model) {\_\_model: nn.Module};
+        \node[below=0.2cm of model, method] (thresholds) {\_\_thresholds: list};
+        % Public methods
+        \node[below=1.5cm of handler, xshift=-5.5cm] (public) {\textbf{Publiczne metody:}};
+        \node[below=0.2cm of public, method] (init) {+ \_\_init\_(loader, model, thresholds, device)};
+        \node[below=0.2cm of init, method] (evaluate) {+ evaluate() $\rightarrow$ (threshold\_metric\_dict, b\_auroc\_avg)};
+        \node[below=0.2cm of evaluate, method] (append) {+ append\_metrics(to\_append, new\_elements) $\rightarrow$ to\_append};
+        \node[below=0.2cm of append, method] (save) {+ save\_metrics(metrics, auroc, path)};
+        % Private methods
+        \node[below=1.5cm of handler, xshift=2.5cm] (private_methods) {\textbf{Prywatne metody:}};
+        \node[below=0.2cm of private_methods, method] (calculate) {- \_calculate\_metrics() $\rightarrow$ dict};
+        \node[below=0.2cm of calculate, method] (update) {- \_update\_threshold\_metrics()};
+        \node[below=0.2cm of update, method] (save_metric) {- \_save\_metric\_to\_file()};
+        % Connections
+        \path[line] (handler) -- (device);
+        \path[line] (handler) -- (public);
+        \path[line] (handler) -- (private_methods);
+    \end{tikzpicture}
+    \caption{Diagram klasy \texttt{MetricsHandler}}
+    \label{fig:metrics-handler}
+\end{figure}
+

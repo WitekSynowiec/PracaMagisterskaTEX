@@ -1,0 +1,60 @@
+\section{Wymagania funkcjonalne}
+\label{sec:FunctionalRequirements}
+
+\subsection{Wymagania stawiane danym}
+\label{sec:TrainingDataRequirements}
+\begin{itemize}
+    \item Strukturyzacja danych
+    \par
+    Na dane powinny składać się trójwymiarowe skany mózgu wraz z maskami odpowiadającymi rzeczywistym położeniom lezji na obrazach.
+    
+    \item Wystarczająca jakość danych
+    \par
+    Dane winny być dostarczone w odpowiednio dużej oryginalnej rozdzielczości, pozwalającej na sprawną ekstrakcję cech w procesie uczenia. Maski danych powinny być prawidłowe, precyzyjne i dokładne, a lezje powinny być oznaczone przez kompetentnych ekspertów.
+    
+    \item Normalizacja danych
+    \par
+    Dane na wejściu winny być unormowane względem siebie, tak, aby potencjalne dane z różnych źródeł nie wykazywały systemowo różnych strukturalnych cech. Różnice strukturalne powinny być aplikowane w procesie wstępnego przetwarzania danych.
+    
+    \item Wstępne przetwarzanie danych
+    \par 
+    Dane na wejściu sieci powinny być objęte wstępnym przetwarzaniem danych, rozszerzając tym samym bazę uczącą sieci.
+
+    \item Status legalny danych
+    \par
+    Dane powinny być pozyskane w sposób legalny, za zgodą właściciela zbiorów danych. Ze względu na newralgiczność danych medycznych zbioru danych medycznych nie wolno udostępniać bez zgody właściciela.
+\end{itemize}
+
+\subsection{Wymagania stawiane architekturze sieci i procesowi treningowemu}
+\label{sec:NetworkRequirements}
+\begin{itemize}
+    \item 
+    Złożoność architektury
+    \par
+    Architektura sieci powinna być stworzona tak, aby pozwalała na przeprowadzenie procesu uczenia z wykorzystaniem dostępnego sprzętu.
+    \item 
+    Odpowiednie moce obliczeniowe
+    \par
+    Niezbędne jest posiadanie sprzętu oraz wykorzystanie technologii, np. technologii obliczeń równoległych do akceleracji procesu uczenia.
+    \item 
+    Odpowiednie parametry uczenia sieci
+    \par
+    Parametry uczenia sieci powinny być dobrane tak, żeby ta uczyła się sprawnie.
+    \item 
+    Podział na dane uczące i ewaluacyjne
+    \par
+    Do procesu uczenia niezbędne jest podzielenie zebranego zbioru danych na dane uczące i ewaluacyjne. Dane uczące powinny być mieszane w procesie uczenia.
+\end{itemize}
+
+\subsection{Wymagania stawiane wyjściom sieci}
+\label{sec:OutputRequirements}
+\begin{itemize}
+    \item 
+    Jakość wyjść
+    \par
+    Tworzona maska lezji powinna bardzo dokładnie odzwierciedlać rzeczywiste ich położenie. Nie może zaznaczać lezji tam gdzie jej nie ma bądź nie zaznaczać tam gdzie ona w istocie jest.
+    \item 
+    Minimalizacja fałszywie pozytywnych wyników
+    \par
+    Rozwiązanie pod żadnym pozorem nie może zaznaczać lezji tam gdzie jej nie ma. Tworzenie przesłanek chorobowych w przypadku osoby zdrowej może okazać się tragiczne w skutkach.
+\end{itemize}

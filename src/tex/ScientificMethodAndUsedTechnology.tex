@@ -1,0 +1,121 @@
+\section{Metodyka badawcza i użyte technologie}
+\subsection{Dobór zbioru danych}
+\label{sec:DatasetSelection}
+\par
+Przez zbiór danych rozumie się skany MRI mózgu oraz odpowiadające im maski, czyli oznaczenia zmian chorobowych dokonane przez lekarza i służące jako obiektywnie prawdziwa wartość oczekiwana do procesu uczenia. Przykładowy element w modalności FLAIR został przedstawiony na obrazie rys. \ref{fig:DBInstance-scheme}. \addImage{fig:DBInstance-scheme}{src/img/ScientificMethodsAndTechnology/DBInstance-scheme-bw.png}{Przykładowa instancja danej w zbiorze danych}.
+\par
+Na zbiór danych składa się 97 trójwymiarowych skanów MRI mózgu zapisanych w standardzie nifti. Każdy z obrazów jest wielkości ok. 200x200x200 pikseli, a poszczególne różnią się od siebie rozmiarem. Przekłada się to na 22 115 przekrojów poprzecznych mózgu. Zbiór danych został pozyskany z dwóch źródeł\cite{malinin2022shifts}. 
+\par 
+Pierwszym z nich jest Observatoire Français de la Sclérose en Plaques (OFSEP), będące francuskim rejestrem MS, stworzonym dzięki powszechnym wykorzystaniu Europejskiej bazy danych stwardnienia rozsianego (EDMUS)\cite{Vukusic2020-mg}\cite{Confavreux1992-em}. OFSEP w 2018 roku był w posiadaniu 68 097 plików, z czego 71.1\% stanowiły obrazy mózgów kobiet, co jest reprezentatywne biorąc pod uwagę epidemiologię MS. Dane są publicznie dostępne dla potrzeb naukowych. Wszystkie dostępne zostały wykonane w Rennes, Bordeaux i Lyon skanerami 3.0T Siemens Verio, GE Discovery i Philips Ingenia oraz 1.5T Siemens Aera. Obrazy masek powstały na zasadzie konsensusu 7 lekarzy oznaczających lezje. Z powyższego zbioru zostało pobranych 52 trójwymiarowe skany mózgu. 
+\par
+Drugim źródłem danych jest dostępna na publicznej licencji  Creative Commons CC BY-NC-SA 4.0 kombinacja zbiorów ISBI pobranych w Best\cite{Carass2017-xz}\cite{Carass2017-al} oraz PubMRI w Ljubljanie\cite{Lesjak2018-vo}. Na dane składają się 47 skany mózgów, otrzymanych za pomocą 3.0T tomografów Philips Medical oraz Siemens Magnetom Trio. Maski zostały określone przez konsensus trzech lekarzy w przypadku danych z Ljublany i dwóch w przypadku danych z Best. 
+\par Rozdzielczość pobranych obrazów została przedstawiona w tabeli \tabRef{tab:ResolutionOfDataset}.
+
+\begin{table}[H]
+    \centering
+    \caption{Rozdzielczość skanerów wykorzystanych do tworzenia zbioru danych}
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    Lokacja & Skaner & Pole & Rozdzielczość \\
+    \hline
+    Rennes - OFSEP & Siemens Verio & 3.0T & $0.50 \times 0.50 \times 1.10$  \\
+    \hline
+    Bordeaux - OFSEP & GE Discovery & 3.0T & $0.47 \times 0.47 \times 0.90$  \\
+
+    & Siemens Aera & 1.5T & $1.03 \times 1.03 \times 1.25$  \\
+    \hline
+    Lyon - OFSEP & Philips Ingenia & 3.0T & $0.74 \times 0.74 \times 0.70$  \\
+    \hline
+    Best - ISBI & Philips Medical & 3.0T & $0.82 \times 0.82 \times 2.20$  \\
+    \hline
+    Ljubljana - PubMRI & Siemens Magnetom Trio & 3.0T & $0.47 \times 0.47 \times 0.80$  \\
+    \hline
+    \end{tabular}
+    \label{tab:ResolutionOfDataset}
+\end{table}
+
+\par 
+Wszystkie dane używane w pracy zostały poddane procesowi anonimizacji przez ich dostawcę.  
+Wszystkie zbiory zostały pozyskane z legalnych źródeł i traktowane według licencji na których zostały udostępnione.
+
+
+
+
+\subsection{Dobór środowiska programistycznego}
+\label{sec:IDESelection}
+\par
+Do realizacji zadania wybrano DataSpell 2023.1.2, zintegrowane środowisko programistyczne (IDE) firmy JetBrains służące do obsługi skryptów języka Python, notatników Jupyter, mająca ułatwiać realizację zagadnień danologii. IDE wspiera edycję i analizę kodu źródłowego, posiada graficzny debuger, pozwala na wykorzystanie jądra Linuxowego przez warstwę kompatybilności Windows Subsystem for Linux (WSL 2) dla użytkowników systemu Windows oraz umożliwia integrację z systemem kontroli wersji. Ponadto przez wygodny interfejs użytkownika pozwala na korzystanie z systemów zarządzania pakietami dla środowiska języka Python. Środowisko DataSpell jest częścią szerokiego i uznanego ekosystemu środowisk programistycznych stworzonych przez JetBrains. 
+\par 
+Do realizacji zadań na Google Colab stosuje się edytor dostępny dla tej usługi, jednakże jedynie celem modyfikacji notatników. Z wykorzystaniem kontroli wersji zintegrowanej z repozytorium w chmurze, notatnik służący do przeprowadzenia procesu uczenia się pobiera niezbędne pakiety. Tym samym, sama modyfikacja kodu źródłowego jest wykonywana w dalszym ciągu przy wykorzystaniu DataSpell, a łącznikiem jest repozytorium w chmurze.
+
+\subsection{Dobór graficznej jednostki obliczeniowej (GPU)}
+\label{sec:GPUSelection}
+\begin{table}[H]
+    \centering
+    \caption{ Porównanie specyfikacji jednostek graficznych}
+    \begin{tabular}{c|c|c}
+    % \hline
+    & GeForce RTX 3060 Ti\footnotemark[1] & Turing Tesla T4\footnotemark[2]\\
+    \hline
+    Liczba rdzeni NVIDIA CUDA & 4864 & 2560  \\
+    \hline
+    Częstotliwość podwyższona (GHz) & 1,67 &  1,59\\
+    \hline
+    Częstotliwość bazowa (GHz) & 1,41  & 0,585\\
+    \hline
+    Standardowa konfiguracja pamięci & 8 GB GDDR6 & 16 GB GDDR6  \\
+    \hline
+    Szerokość magistrali pamięci & 256-bitowa  & 256-bitowa\\
+    % \hline
+    \end{tabular}
+    \label{tab:RTX3060TiSpecification}
+\end{table}
+\par 
+Przyjęta architektura, opisana w sekcji \ref{sec:ModelSelection}, wymaga dużych mocy obliczeniowych celem wykonania w sprawny sposób procesu uczenia maszynowego. Odpowiadając na wymagania funkcjonalne opisane w \ref{sec:NetworkRequirements}, przyjęto wykorzystanie technologii general-purpose computing on graphics processing units (GPGPU) do przeprowadzenia obliczeń równoległych. W tym celu wybrano Compute Unified Device Architecture (CUDA), czyli API firmy Nvidia, pozwalające użytkownikom na wykorzystanie ich kart graficznych do ogólnych zadań obliczeniowych. 
+\par
+Zdecydowano się wykorzystać do przeprowadzenia obliczeń procesor GPU NVIDIA GeForce RTX 3060 Ti o specyfikacji wyszczególnionej w tabeli \tabRef{tab:RTX3060TiSpecification}, ze sterownikiem na dystrybucję Ubuntu-WSL, CUDA Toolkit 12.1. 
+Pomocniczo zdecydowano wykorzystać procesor GPU Tesla T4 udostępniany przez Google Colab, jako możliwy do wykorzystania w chmurze. Niestety ze względu na duże ograniczenia jakie zostały nałożone na nawet płatne wersje usługi, oraz gorsze parametry jednostki, traktuje się ją drugorzędnie.
+
+
+\footnotetext[1]{https://www.nvidia.com/pl-pl/geforce/graphics-cards/30-series/rtx-3060-3060ti/}
+\footnotetext[2]{https://www.nvidia.com/en-us/data-center/tesla-t4/}
+
+
+\subsection{Dobór modelu sieci neuronowej}
+\label{sec:nn-selection}
+\addImage{fig:UNet-scheme}{src/img/ScientificMethodsAndTechnology/UNet-bw.png}{Schemat architektury splotowej sieci neuronowej U-Net}
+Przyjęto architekturę U-Net do realizacji zadania. Jest to splotowa sieć neuronowa zaproponowana w 2015 roku przez Departament Nauk Komputerowych Uniwersytetu we Freiburgu\cite{ronneberger2015unet} celem segmentacji na obrazach medycznych. Na architekturę sieci składa się ścieżka kurcząca (lewa strona) i ścieżka rozszerzająca (prawa strona). Pierwsza wygląda jak typowa architektura splotowej sieci, składając się z powtarzających się splotów 3x3, z których po każdym stosuje się rektyfikowaną jednostkę liniową ReLU oraz maskymalizująca warstwa łącząca \en{max pooling layer} 2x2 z krokiem 2. W każdym decymacyjnym kroku podwaja się ilość kanałów cech. W przypadku ścieżki rozszerzającej każdy krok składa się z interpolacji mapy cech, po których następuje splot 2x2, dwukrotnie zmniejszający ilość kanałów cech, konkatenację z przyciętą mapą cech ze ścieżki kurczącej i dwóch splotów 3x3 wraz z ReLU. Według twórców modelu przycinanie jest niezbędne ze względu na utratę pikseli krańcowych podczas splotu. Końcową warstwę buduje splot 1x1 do zmapowania wszystkich 64 cech z oczekiwaną liczbą klas. Schemat sieci U-Net został przedstawiony na rys. \ref{fig:UNet-scheme}.
+
+
+\par
+U-Net jest siecią powszechnie stosowaną w zastosowaniach medycznych. Powstało wiele prac wykorzystujących architekturę U-Net w segmentacji istoty białej oraz szarej \cite{PRZYBYSZEWSKI_KOHUT_2020}, segmentacji guza \cite{Ru2021} oraz zmian chorobowych Alzheimera\cite{Kavitha2019} z dobrymi rezultatami.
+
+
+
+
+
+\label{sec:ModelSelection}
+\subsection{Dobór funkcji kosztu}
+\label{sec:choosing-of-cost-function}
+\par
+Zdecydowano się na dobór entropii krzyżowej z ważeniem na funkcję kosztu. Ważenie zdecydowano się zastosować jako środek zaradczy przeciw dużemu niezbalansowaniu danych, wynoszących w wykorzystywanym zbiorze danych w sumie  1 480 241 pikseli lezji na 590 002 975 pikseli tła. Daje to około 0.25\% oraz 99.75\% pikseli w klasie lezji oraz tła odpowiednio. Zastosowano różne wagi, przede wszystkim wagę klasy lezji 20 oraz 400, w pełni równoważącą niezbalansowanie danych. Postanowiono wykorzystać również funkcję kosztu Focal, również użyteczną w przypadku niezbalansowanych danych.
+
+
+\subsection{Dobór optymalizatora}
+\label{sec:choosing-of-optimizer}
+\par
+Wybrano optymalizator Adam opisany w rozdziale \ref{sec:optimization}, ze względu na jego zalety adaptacyjne. Testowano również optymalizator SGD, jednak ze znacznie gorszymi rezultatami. Rozważano wykorzystanie innych optymalizatorów adaptacyjnych jak Adagrad, Adadelta, RMSprop. Odrzucono je na rzecz optymalizatora Adam ze względu na uwzględnienie w nich wszystkich, lub wielu, poprzednich gradientów, prowadzące do znacznego zmniejszenia kroku uczenia po pewnym czasie\cite{Haji2021-lj}.
+
+% \subsection{Metryki ewaluacyjne}
+% \label{sec:metrics-methodics}
+% \par
+% Zdecydowano się na użycie wszystkich metryk ewaluacyjnych opisanych w sekcji \ref{sec:confusion-matrix-and-metrics}. 
+
+\subsection{Język programowania Python oraz użyte biblioteki}
+\label{sec:pyhton}
+\par 
+Zdecydowano się na wykorzystanie języka programowania Python, ze względu na liczne biblioteki potencjalnie użyteczne na każdym etapie wykonania zadania oraz prostotę w obsłudze. Python jest powszechnie wykorzystywanym językiem do realizacji projektów z zagadnienia uczenia maszynowego. 
+\par 
+Jako bibliotekę do uczenia maszynowego wybrano otwartoźródłową \textit{PyTorch 2.0}, stworzoną przez zespół MetaAI. Biblioteka pozwala w łatwy sposób przeprowadzać obliczenia na tensorach, wykorzystując GPU w celu przyspieszenia operacji. Interfejs pozwalający na korzystanie z tensorów podobny jest do interfejsu powszechnie znanej biblioteki \textit{Numpy}. Ponadto posiada automatyczny system do różniczkowania. Posiada również ogromną zaletę w postaci przejrzystego interfejsu oraz w opinii autora, biblioteka pozwala na łatwe wynajdowanie błędów. Zaleta ta, oraz przejrzystość, w dużej mierze była powodem wybrania do realizacji zadania biblioteki \textit{PyTorch}, nad starszą i powszechniejszą biblioteką \textit{TensorFlow} przygotowaną przez Google Brain. Do analizy metryk wykorzystano zintegrowaną z \textit{PyTorch} bibliotekę \textit{TorchMetrics}.
+\par 
+Wykorzystano również standardowe biblioteki programistyczne jak \textit{pillow, numpy, matplotlib, scikit, scipy, tqdm}, oraz do obsługi plików Nifti bibliotekę \textit{nibabel}.
